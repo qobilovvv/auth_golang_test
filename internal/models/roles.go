@@ -18,3 +18,9 @@ type Role struct {
 	CreatedAt time.Time  `gorm:"autoCreateTime" json:"created_at"`
 	CreatedBy *uuid.UUID `gorm:"type:uuid" json:"created_by"` // nullable field
 }
+
+type SysUserRoles struct {
+	Id         uuid.UUID `gorm:"type:uuid;primaryKey;not null" json:"id"`
+	SysUser_id uuid.UUID `gorm:"not null" json:"sysuser_id"`
+	Role_id    uuid.UUID `gorm:"type:uuid;not null" json:"role_id"`
+}
