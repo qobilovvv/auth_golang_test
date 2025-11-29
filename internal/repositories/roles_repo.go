@@ -6,7 +6,8 @@ import (
 )
 
 type RoleRepository interface {
-	Create(user *models.Users) error
+	Create(role *models.Role) error
+	GetAll() ([]models.Role, error)
 }
 
 type roleRepository struct {
@@ -17,6 +18,12 @@ func NewRoleReposity(db *gorm.DB) *roleRepository {
 	return &roleRepository{db: db}
 }
 
-func (r *roleRepository) Create(user *models.Users) error {
-	return r.db.Create(&user).Error
+func (r *roleRepository) Create(role *models.Role) error {
+	return r.db.Create(role).Error
+}
+
+func (r *roleRepository) GetAll() ([]models.Role, error) {
+	var users []models.Role
+	err := r.db.Find(&users).Error
+	return users, err
 }
