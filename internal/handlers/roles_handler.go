@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
 )
 
@@ -37,5 +40,42 @@ func (h *userHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 		ResponseError(w, http.StatusInternalServerError, err.Error()) // status = 500
 		return
 	}
-	RespondJSON(w, http.StatusOK, roles)
+
+	var res []models.RoleResponse
+	for _, role := range roles {
+		res = append(res, models.RoleResponse{
+			Id:        role.Id,
+			Name:      role.Name,
+			CreatedAt: role.CreatedAt,
+		})
+	}
+
+	RespondJSON(w, http.StatusOK, res)
+}
+
+
+func (h *userHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
+	roleIDStr := chi.URLParam(r, "id")
+	roleID, err := uuid.Parse(roleIDStr)
+	if err != nil {
+		http.Error(w, "Invalid role ID", http.StatusBadRequest)
+		return
+	}
+
+
+	var req struct {
+		Name string `json:"name"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
+		http.Error(w, "Invalid or missing name", http.StatusBadRequest)
+		return
+	}
+
+	updatedRole, err := h.service.UpdateRole(roleID, req.Name)
+	if err != nil {
+		ResponseError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	RespondJSON(w, http.StatusOK,updatedRole)
 }

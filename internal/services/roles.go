@@ -9,6 +9,7 @@ import (
 type RoleService interface {
 	CreateRole(name string) (*models.Role, error)
 	GetAll() ([]models.Role, error)
+	UpdateRole(roleID uuid.UUID, name string) (*models.Role, error)
 }
 
 type roleService struct {
@@ -29,4 +30,8 @@ func (s *roleService) CreateRole(name string) (*models.Role, error) {
 
 func (s *roleService) GetAll() ([]models.Role, error) {
 	return s.repo.GetAll()
+}
+
+func (s *roleService) UpdateRole(roleID uuid.UUID, name string) (*models.Role, error) {
+	return s.repo.Update(roleID, name)
 }

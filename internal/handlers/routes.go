@@ -16,6 +16,7 @@ func NewRouter(r Router) http.Handler {
 	router.Route("/roles", func(ro chi.Router) {
 		ro.Post("/create", r.RoleHandler.CreateRole)
 		ro.Get("/", r.RoleHandler.GetRoles)
+		ro.Patch("/{id}", r.RoleHandler.UpdateRole)
 	})
 
 	return router
