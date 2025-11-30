@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
@@ -15,6 +16,7 @@ import (
 
 type OTPService interface {
 	SendOTP(email string) (*models.OTP, error)
+	ConfirmOTP(id uuid.UUID, code string) (string, error)
 }
 
 type otpService struct {
@@ -23,6 +25,21 @@ type otpService struct {
 
 func NewOTPService(repo repositories.OTPRepository) *otpService {
 	return &otpService{repo: repo}
+}
+
+func sendEmail(toEmail, code string) error {
+	from := os.Getenv("GOOGLE_EMAIL")
+	pass := os.Getenv("GOOGLE_PSW")
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", from)
+	m.SetHeader("To", toEmail)
+	m.SetHeader("Subject", "Your OTP Code")
+	m.SetBody("text/plain", fmt.Sprintf("Your confirmation code: %s", code))
+
+	d := gomail.NewDialer("smtp.gmail.com", 587, from, pass)
+
+	return d.DialAndSend(m)
 }
 
 func (s *otpService) SendOTP(email string) (*models.OTP, error) {
@@ -46,20 +63,36 @@ func (s *otpService) SendOTP(email string) (*models.OTP, error) {
 	return otp, nil
 }
 
-func sendEmail(toEmail, code string) error {
-	from := os.Getenv("GOOGLE_EMAIL")
-	pass := os.Getenv("GOOGLE_PSW")
-	fmt.Println("email:", from)
-	fmt.Println("pass:", pass)
+func (s *otpService) ConfirmOTP(id uuid.UUID, code string) (string, error) {
+	otp, err := s.repo.GetOtp(id, "unconfirmed")
+	if err != nil {
+		return "", fmt.Errorf("OTP not found")
+	}
 
+	if time.Now().After(otp.ExpiresAt) {
+		return "", fmt.Errorf("OTP expired")
+	}
 
-	m := gomail.NewMessage()
-	m.SetHeader("From", from)
-	m.SetHeader("To", toEmail)
-	m.SetHeader("Subject", "Your OTP Code")
-	m.SetBody("text/plain", fmt.Sprintf("Your confirmation code: %s", code))
+	if code != otp.Code {
+		return "", fmt.Errorf("invalid OTP code")
+	}
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, from, pass)
+	otp.Status = "confirmed"
+	if err := s.repo.UpdateOtp(otp); err != nil {
+		return "", err
+	}
 
-	return d.DialAndSend(m)
+	secret := os.Getenv("JWT_SECRET")
+	expiresIn := time.Now().Add(30 * time.Minute)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id": otp.Id.String(),
+		"exp":    expiresIn.Unix(),
+	})
+
+	signedToken, err := token.SignedString([]byte(secret))
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
 }

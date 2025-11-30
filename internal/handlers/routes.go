@@ -8,7 +8,7 @@ import (
 
 type Router struct {
 	RoleHandler *userHandler
-	OtpHandler *otpHandler
+	OtpHandler  *otpHandler
 }
 
 func NewRouter(r Router) http.Handler {
@@ -22,6 +22,7 @@ func NewRouter(r Router) http.Handler {
 
 	router.Route("/otp", func(ro chi.Router) {
 		ro.Post("/send", r.OtpHandler.SendOTP)
+		ro.Post("/confirm", r.OtpHandler.ConfirmOTP)
 	})
 
 	return router
