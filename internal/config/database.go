@@ -15,7 +15,11 @@ func InitDB() *gorm.DB {
 	}
 
 	// Migrate the schema
+	db.AutoMigrate(&models.Users{})
+	db.AutoMigrate(&models.SysUsers{})
+	db.AutoMigrate(&models.SysUserRoles{})
 	db.AutoMigrate(&models.Role{})
+	db.AutoMigrate(&models.OTP{})
 	log.Println("Database connected and migrated successfully")
 
 	return db

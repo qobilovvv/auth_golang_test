@@ -6,4 +6,4 @@
 3. /roles/{id} -> update role
 
 ## OTP
-1. /send-otp
+1. /otp/send -> sends message with verification code to email

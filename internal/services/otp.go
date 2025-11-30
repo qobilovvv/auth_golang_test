@@ -2,7 +2,9 @@ package services
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,33 +29,37 @@ func (s *otpService) SendOTP(email string) (*models.OTP, error) {
 	otp := &models.OTP{
 		Id:        uuid.New(),
 		Email:     email,
-		Code:      fmt.Sprintf("%06d", rand.Intn(1000000)), // 6-digit code
+		Code:      fmt.Sprintf("%06d", rand.Intn(1000000)),
 		Status:    models.StatusUnconfirmed,
 		ExpiresAt: time.Now().Add(3 * time.Minute),
 	}
 
-	// Save to DB
 	if err := s.repo.Create(otp); err != nil {
 		return nil, err
 	}
 
-	// Send email (simple example)
-	if err := sendEmail(email, otp.Code); err != nil {
-		return nil, err
-	}
-
+	go func(email, code string) {
+        if err := sendEmail(email, code); err != nil {
+            log.Println("did not send email:", err)
+        }
+    }(email, otp.Code)
 	return otp, nil
 }
 
-// Simple email sender using gomail
 func sendEmail(toEmail, code string) error {
+	from := os.Getenv("GOOGLE_EMAIL")
+	pass := os.Getenv("GOOGLE_PSW")
+	fmt.Println("email:", from)
+	fmt.Println("pass:", pass)
+
+
 	m := gomail.NewMessage()
-	m.SetHeader("From", "qobilovvodil@gmail.com")
+	m.SetHeader("From", from)
 	m.SetHeader("To", toEmail)
 	m.SetHeader("Subject", "Your OTP Code")
 	m.SetBody("text/plain", fmt.Sprintf("Your confirmation code: %s", code))
 
-	d := gomail.NewDialer("smtp.example.com", 587, "username", "password")
+	d := gomail.NewDialer("smtp.gmail.com", 587, from, pass)
 
 	return d.DialAndSend(m)
 }

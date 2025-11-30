@@ -21,13 +21,13 @@ func (h *otpHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
-		http.Error(w, "email is required", http.StatusBadRequest)
+		RespondJSON(w, http.StatusBadRequest, "email is required")
 		return
 	}
 
 	otp, err := h.service.SendOTP(req.Email)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
