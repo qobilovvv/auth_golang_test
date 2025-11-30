@@ -19,9 +19,10 @@ const (
 
 func main() {
 	db := config.InitDB()
-	
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
 	roleRepo := repositories.NewRoleReposity(db)
 	roleService := services.NewRoleService(roleRepo)
