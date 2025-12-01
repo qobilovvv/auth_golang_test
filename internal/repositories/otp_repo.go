@@ -9,6 +9,7 @@ import (
 type OTPRepository interface {
 	Create(otp *models.OTP) error
 	GetOtp(uuid uuid.UUID, status string) (*models.OTP, error)
+	GetOtpWithEmail(uuid uuid.UUID, email string) (*models.OTP, error)
 	UpdateOtp(otp *models.OTP) error
 }
 
@@ -33,6 +34,14 @@ func (r *otpRepository) GetOtp(uuid uuid.UUID, status string) (*models.OTP, erro
 	return &otp, nil
 }
 
+func (r *otpRepository) GetOtpWithEmail(uuid uuid.UUID, email string) (*models.OTP, error) {
+	var otp models.OTP
+	err := r.db.Where("id = ? AND email = ?", uuid, email).First(&otp).Error
+	if err != nil {
+		return nil, err
+	}
+	return &otp, nil
+}
 
 func (r *otpRepository) UpdateOtp(otp *models.OTP) error {
 	return r.db.Save(otp).Error

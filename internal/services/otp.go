@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/qobilovvv/test_tasks/auth/internal/config"
 	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
 	"gopkg.in/gomail.v2"
@@ -82,17 +82,11 @@ func (s *otpService) ConfirmOTP(id uuid.UUID, code string) (string, error) {
 		return "", err
 	}
 
-	secret := os.Getenv("JWT_SECRET")
-	expiresIn := time.Now().Add(30 * time.Minute)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id": otp.Id.String(),
-		"exp":    expiresIn.Unix(),
-	})
+	token, err := config.GenerateOtpToken(otp.Id.String(), 3*time.Minute)
+    if err != nil {
+        return "", fmt.Errorf("failed to generate OTP token: %w", err)
+    }
 
-	signedToken, err := token.SignedString([]byte(secret))
-	if err != nil {
-		return "", err
-	}
 
-	return signedToken, nil
+	return token, nil
 }

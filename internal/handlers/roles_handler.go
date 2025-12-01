@@ -10,15 +10,15 @@ import (
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
 )
 
-type userHandler struct {
+type roleHandler struct {
 	service services.RoleService
 }
 
-func NewUserHandler(service services.RoleService) *userHandler {
-	return &userHandler{service: service}
+func NewRoleHandler(service services.RoleService) *roleHandler {
+	return &roleHandler{service: service}
 }
 
-func (h *userHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
+func (h *roleHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Name string `json:"name"`
 	}
@@ -34,7 +34,7 @@ func (h *userHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 	RespondJSON(w, http.StatusOK, user)
 }
 
-func (h *userHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
+func (h *roleHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	roles, err := h.service.GetAll()
 	if err != nil {
 		ResponseError(w, http.StatusInternalServerError, err.Error()) // status = 500
@@ -54,7 +54,7 @@ func (h *userHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func (h *userHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
+func (h *roleHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleIDStr := chi.URLParam(r, "id")
 	roleID, err := uuid.Parse(roleIDStr)
 	if err != nil {

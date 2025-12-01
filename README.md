@@ -10,3 +10,11 @@
 
 1. /otp/send -> sends message with verification code to email
 2. /otp/confirm -> confirms code and returns jwt token that contains id, exp
+
+# Auth
+
+1. /auth/signup -> sign up for users
+
+
+
+NEEED TO WRITE TESTS
