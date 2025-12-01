@@ -9,6 +9,7 @@ import (
 
 var jwtSecret = []byte("secrett")
 
+
 func GenerateOtpToken(otpID string, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"id":  otpID,
@@ -60,4 +61,16 @@ func DecodeOtpToken(tokenString string) (string, time.Time, error) {
 	}
 
 	return otpID, expTime, nil
+}
+
+
+func GenerateAccessToken(user_id, user_type string, duration time.Duration) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id":  user_id,
+		"user_type":  user_type,
+		"exp": time.Now().Add(duration).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
 }

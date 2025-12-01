@@ -11,6 +11,7 @@ type Router struct {
 	RoleHandler *roleHandler
 	OtpHandler  *otpHandler
 	UserHandler *userHandler
+	SysUserHandler *sysUserHandler
 }
 
 func NewRouter(r Router) http.Handler {
@@ -29,7 +30,12 @@ func NewRouter(r Router) http.Handler {
 	})
 	router.Route("/users", func(ro chi.Router) {
 		ro.Post("/signup", r.UserHandler.SignUp)
+		ro.Post("/login", r.UserHandler.Login)
 	})
 
-	return router
+	router.Route("/sysusers", func(ro chi.Router) {
+		ro.Post("/create", r.SysUserHandler.CreateSysUser)
+	})
+
+return router
 }

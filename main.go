@@ -31,19 +31,23 @@ func main() {
 	roleRepo := repositories.NewRoleReposity(db)
 	otpRepo := repositories.NewOTPRepository(db)
 	usersRepo := repositories.NewUserRepository(db)
+	sysUsersRepo := repositories.NewSysUserRepository(db)
 
 	roleService := services.NewRoleService(roleRepo)
 	otpService := services.NewOTPService(otpRepo)
 	userService := services.NewUserService(usersRepo, otpRepo)
+	sysUsersService := services.NewSysUserService(sysUsersRepo)
 
 	roleHandler := handlers.NewRoleHandler(roleService)
 	otpHandler := handlers.NewOTPHandler(otpService)
 	userHandler := handlers.NewUserHandler(userService)
+	sysUserHandler := handlers.NewSysUserHandler(&sysUsersService)
 
 	router := handlers.NewRouter(handlers.Router{
-		RoleHandler: roleHandler,
-		OtpHandler:  otpHandler,
-		UserHandler: userHandler,
+		RoleHandler:    roleHandler,
+		OtpHandler:     otpHandler,
+		UserHandler:    userHandler,
+		SysUserHandler: sysUserHandler,
 	})
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), router))

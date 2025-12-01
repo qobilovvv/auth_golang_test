@@ -20,9 +20,9 @@ type Role struct {
 }
 
 type SysUserRoles struct {
-	Id         uuid.UUID `gorm:"type:uuid;primaryKey;not null" json:"id"`
-	SysUser_id uuid.UUID `gorm:"not null" json:"sysuser_id"`
-	Role_id    uuid.UUID `gorm:"type:uuid;not null" json:"role_id"`
+	Id        uuid.UUID `gorm:"type:uuid;primaryKey;not null" json:"id"`
+	SysUserId uuid.UUID `gorm:"not null" json:"sysuser_id"`
+	RoleId    uuid.UUID `gorm:"type:uuid;not null" json:"role_id"`
 }
 
 type RoleResponse struct {

@@ -15,6 +15,7 @@ import (
 
 type UserService interface {
 	SignUpUser(token, email, name, password string) (string, error)
+	Login(email, password, user_type string) (string, error)
 }
 
 type userService struct {
@@ -76,4 +77,21 @@ func (s *userService) SignUpUser(token, email, name, password string) (string, e
 		return "", errors.ErrUserCreationFailed
 	}
 	return created_user.Id.String(), nil
+}
+
+func (s *userService) Login(email, password, user_type string) (string, error) {
+	user, err := s.userRepo.GetActiveUser(email)
+	if err != nil {
+		return "", err
+	}
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return "", errors.ErrInvalidCredentials
+	}
+
+	access_token, err := config.GenerateAccessToken(user.Id.String(), user_type, time.Minute*30)
+	if err != nil {
+		return "", err
+	}
+	return access_token, nil
 }
