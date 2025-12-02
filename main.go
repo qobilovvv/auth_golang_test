@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -24,8 +23,6 @@ import (
 const (
 	PORT = 3000
 )
-
-var isShuttingDown atomic.Bool
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -69,7 +66,6 @@ func main() {
 		Handler: router,
 	}
 
-	// running server in go rutine
 	go func() {
 		log.Printf("Server running on port %d\n", PORT)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
