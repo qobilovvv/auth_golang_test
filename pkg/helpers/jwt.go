@@ -2,12 +2,13 @@ package helpers
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte("secrett")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func GenerateJwtOtpToken(otpID string, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{

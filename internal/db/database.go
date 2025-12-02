@@ -23,3 +23,14 @@ func InitDB() *gorm.DB {
 
 	return db
 }
+
+func TestDB() (*gorm.DB, error) {
+	dsn := ":memory:" // in memory db
+
+	db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}

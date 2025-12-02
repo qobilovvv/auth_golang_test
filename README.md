@@ -21,12 +21,15 @@
 3. /roles/{id}   -> update role
 
 
-### How to run:
+### How to run | test:
 1. make run
 2. go run main.go
+3. make test
+4. go test ./internal/tests/...
+
 
 ## details
-As you can see in .env.example we have variables ADMIN_PHONE and ADMIN_PHONE,
+As you can see in .env.example we have variables ADMIN_PHONE and ADMIN_PASSWORD,
 and this we need to create super admin(sys_user), when first we run the project,
 script will check the sysusers and if there is no other sysusers, it will create one, with phone and password from .env, you can also delete it in main.go
 ```
