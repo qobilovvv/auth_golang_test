@@ -62,7 +62,7 @@ func main() {
 	// log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), router))
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", PORT),
+		Addr:    fmt.Sprintf(":%v", PORT),
 		Handler: router,
 	}
 
