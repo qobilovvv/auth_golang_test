@@ -1,9 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync/atomic"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -18,6 +24,8 @@ import (
 const (
 	PORT = 3000
 )
+
+var isShuttingDown atomic.Bool
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -54,5 +62,34 @@ func main() {
 		SysUserHandler: sysUserHandler,
 	})
 
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), router))
+	// log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", PORT), router))
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", PORT),
+		Handler: router,
+	}
+
+	// running server in go rutine
+	go func() {
+		log.Printf("Server running on port %d\n", PORT)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("server error: %v", err)
+		}
+	}()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	<-quit
+	log.Println("Shutting down server gracefully...")
+
+	// waits server 5 seconds to finish requests
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Forced shutdown: %v", err)
+	}
+
+	log.Println("Server stopped clearly")
 }
