@@ -56,10 +56,10 @@ func (s *otpService) SendOTP(email string) (*models.OTP, error) {
 	}
 
 	go func(email, code string) {
-        if err := sendEmail(email, code); err != nil {
-            log.Println("did not send email:", err)
-        }
-    }(email, otp.Code)
+		if err := sendEmail(email, code); err != nil {
+			log.Println("did not send email:", err)
+		}
+	}(email, otp.Code)
 	return otp, nil
 }
 
@@ -83,10 +83,9 @@ func (s *otpService) ConfirmOTP(id uuid.UUID, code string) (string, error) {
 	}
 
 	token, err := config.GenerateOtpToken(otp.Id.String(), 3*time.Minute)
-    if err != nil {
-        return "", fmt.Errorf("failed to generate OTP token: %w", err)
-    }
-
+	if err != nil {
+		return "", fmt.Errorf("failed to generate OTP token: %w", err)
+	}
 
 	return token, nil
 }

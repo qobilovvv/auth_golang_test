@@ -13,6 +13,7 @@ type SysUserRepository interface {
 	AddRoles(userId uuid.UUID, roleIds []uuid.UUID) error
 	CheckRoleExists(roleID uuid.UUID) (bool, error)
 	GetByPhone(phone string) (*models.SysUsers, error)
+	GetByEmail(email string) (*models.SysUsers, error)
 }
 
 type sysuserRepository struct {
@@ -32,6 +33,15 @@ func (r *sysuserRepository) GetByPhone(phone string) (*models.SysUsers, error) {
 	return &user, err
 }
 
+func (r *sysuserRepository) GetByEmail(email string) (*models.SysUsers, error) {
+	var user models.SysUsers
+	err := r.db.Where("email = ? AND status = ?", email, "active").First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &user, err
+}
+
 func (r *sysuserRepository) Create(user *models.SysUsers) (*models.SysUsers, error) {
 	if err := r.db.Create(&user).Error; err != nil {
 		return nil, err
@@ -42,7 +52,7 @@ func (r *sysuserRepository) Create(user *models.SysUsers) (*models.SysUsers, err
 func (r *sysuserRepository) AddRoles(userId uuid.UUID, roleIds []uuid.UUID) error {
 	for _, roleId := range roleIds {
 		suser_role := models.SysUserRoles{
-			Id:         uuid.New(),
+			Id:        uuid.New(),
 			SysUserId: userId,
 			RoleId:    roleId,
 		}

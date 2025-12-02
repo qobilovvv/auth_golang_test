@@ -9,7 +9,6 @@ import (
 
 var jwtSecret = []byte("secrett")
 
-
 func GenerateOtpToken(otpID string, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"id":  otpID,
@@ -63,14 +62,42 @@ func DecodeOtpToken(tokenString string) (string, time.Time, error) {
 	return otpID, expTime, nil
 }
 
-
 func GenerateAccessToken(user_id, user_type string, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
-		"user_id":  user_id,
-		"user_type":  user_type,
-		"exp": time.Now().Add(duration).Unix(),
+		"user_id":   user_id,
+		"user_type": user_type,
+		"exp":       time.Now().Add(duration).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(jwtSecret)
+}
+
+func DecodeAccessToken(tokenString string) (string, string, error) {
+	t, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+	if err != nil {
+		return "", "", err
+	}
+
+	claims, ok := t.Claims.(jwt.MapClaims)
+	if !ok || !t.Valid {
+		return "", "", fmt.Errorf("invalid token")
+	}
+
+	userID, _ := claims["user_id"].(string)
+	userType, _ := claims["user_type"].(string)
+
+	if exp, ok := claims["exp"].(float64); ok {
+		if time.Now().Unix() > int64(exp) {
+			return "", "", fmt.Errorf("token expired")
+		}
+	}
+
+	if userID == "" || userType == "" {
+		return "", "", fmt.Errorf("missing fields")
+	}
+
+	return userID, userType, nil
 }

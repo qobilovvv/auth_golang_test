@@ -15,24 +15,27 @@ import (
 
 type UserService interface {
 	SignUpUser(token, email, name, password string) (string, error)
-	Login(email, password, user_type string) (string, error)
+	Login(identifier, password, user_type string) (string, error)
 }
 
 type userService struct {
-	userRepo repositories.UserRepository
-	otpRepo  repositories.OTPRepository
+	userRepo    repositories.UserRepository
+	otpRepo     repositories.OTPRepository
+	sysUserRepo repositories.SysUserRepository
 }
 
 func NewUserService(
 	userRepo repositories.UserRepository,
 	otpRepo repositories.OTPRepository,
+	sysUserRepo repositories.SysUserRepository,
+
 ) *userService {
-	return &userService{userRepo: userRepo, otpRepo: otpRepo}
+	return &userService{userRepo: userRepo, otpRepo: otpRepo, sysUserRepo: sysUserRepo}
 }
 
 func (s *userService) SignUpUser(token, email, name, password string) (string, error) {
 	otpIDStr, exp, err := config.DecodeOtpToken(token)
-    if !strings.Contains(email, "@") {
+	if !strings.Contains(email, "@") {
 		return "", errors.ErrInvalidEmail
 	}
 
@@ -79,19 +82,37 @@ func (s *userService) SignUpUser(token, email, name, password string) (string, e
 	return created_user.Id.String(), nil
 }
 
-func (s *userService) Login(email, password, user_type string) (string, error) {
-	user, err := s.userRepo.GetActiveUser(email)
-	if err != nil {
-		return "", err
+func (s *userService) Login(identifier, password, user_type string) (string, error) {
+	if user_type == "sysuser" {
+		user, err := s.sysUserRepo.GetByPhone(identifier)
+		if err != nil || user == nil {
+			return "", errors.ErrInvalidCredentials
+		}
+
+		if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)) != nil {
+			return "", errors.ErrInvalidCredentials
+		}
+
+		token, err := config.GenerateAccessToken(user.Id.String(), user_type, time.Minute*30)
+		if err != nil {
+			return "", err
+		}
+		return token, nil
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-	if err != nil {
+
+	// For normal users
+	usr, err := s.userRepo.GetActiveUser(identifier)
+	if err != nil || usr == nil {
 		return "", errors.ErrInvalidCredentials
 	}
 
-	access_token, err := config.GenerateAccessToken(user.Id.String(), user_type, time.Minute*30)
+	if bcrypt.CompareHashAndPassword([]byte(usr.Password), []byte(password)) != nil {
+		return "", errors.ErrInvalidCredentials
+	}
+
+	token, err := config.GenerateAccessToken(usr.Id.String(), user_type, time.Minute*30)
 	if err != nil {
 		return "", err
 	}
-	return access_token, nil
+	return token, nil
 }

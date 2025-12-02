@@ -14,9 +14,11 @@
 # Auth
 
 1. /auth/signup -> sign up for users +
-2. /auth/login  -> login for users and sysusers
+2. /auth/login  -> login for users and sysusers +
 
 # SysUsers
 1. /sysusers/create -> create sysusers +
+
+NEED TO WRITE SCRIPT FOR CREATE SUPER ADMIN
 
 NEEED TO WRITE TESTS

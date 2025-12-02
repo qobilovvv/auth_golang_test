@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
+	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 )
 
 type roleHandler struct {
@@ -23,21 +24,21 @@ func (h *roleHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 		Name string `json:"name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, http.StatusBadRequest, "Invalid credentials") // 400
+		helpers.ResponseError(w, http.StatusBadRequest, "Invalid credentials") // 400
 		return
 	}
 	user, err := h.service.CreateRole(req.Name)
 	if err != nil {
-		RespondJSON(w, http.StatusInternalServerError, err.Error()) // 500
+		helpers.RespondJSON(w, http.StatusInternalServerError, err.Error()) // 500
 		return
 	}
-	RespondJSON(w, http.StatusOK, user)
+	helpers.RespondJSON(w, http.StatusOK, user)
 }
 
 func (h *roleHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	roles, err := h.service.GetAll()
 	if err != nil {
-		ResponseError(w, http.StatusInternalServerError, err.Error()) // status = 500
+		helpers.ResponseError(w, http.StatusInternalServerError, err.Error()) // status = 500
 		return
 	}
 
@@ -50,7 +51,7 @@ func (h *roleHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	RespondJSON(w, http.StatusOK, res)
+	helpers.RespondJSON(w, http.StatusOK, res)
 }
 
 
@@ -73,9 +74,9 @@ func (h *roleHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 
 	updatedRole, err := h.service.UpdateRole(roleID, req.Name)
 	if err != nil {
-		ResponseError(w, http.StatusInternalServerError, err.Error())
+		helpers.ResponseError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	RespondJSON(w, http.StatusOK,updatedRole)
+	helpers.RespondJSON(w, http.StatusOK,updatedRole)
 }

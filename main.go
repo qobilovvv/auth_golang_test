@@ -35,7 +35,7 @@ func main() {
 
 	roleService := services.NewRoleService(roleRepo)
 	otpService := services.NewOTPService(otpRepo)
-	userService := services.NewUserService(usersRepo, otpRepo)
+	userService := services.NewUserService(usersRepo, otpRepo, sysUsersRepo)
 	sysUsersService := services.NewSysUserService(sysUsersRepo)
 
 	roleHandler := handlers.NewRoleHandler(roleService)

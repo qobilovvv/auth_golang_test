@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
+	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 )
 
 type otpHandler struct {
@@ -22,17 +23,17 @@ func (h *otpHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Email == "" {
-		RespondJSON(w, http.StatusBadRequest, "email is required")
+		helpers.RespondJSON(w, http.StatusBadRequest, "email is required")
 		return
 	}
 
 	otp, err := h.service.SendOTP(req.Email)
 	if err != nil {
-		RespondJSON(w, http.StatusInternalServerError, err.Error())
+		helpers.RespondJSON(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	RespondJSON(w, http.StatusOK, map[string]string{"otp_id": otp.Id.String()})
+	helpers.RespondJSON(w, http.StatusOK, map[string]string{"otp_id": otp.Id.String()})
 }
 
 func (h *otpHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +43,7 @@ func (h *otpHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		ResponseError(w, http.StatusBadRequest, err.Error())
+		helpers.ResponseError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -58,5 +59,5 @@ func (h *otpHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondJSON(w, http.StatusOK, map[string]string{"message": jwtToken})
+	helpers.RespondJSON(w, http.StatusOK, map[string]string{"message": jwtToken})
 }

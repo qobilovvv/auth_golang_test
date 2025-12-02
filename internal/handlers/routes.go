@@ -4,21 +4,27 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
+	"github.com/qobilovvv/test_tasks/auth/pkg/middleware"
 )
 
 type Router struct {
-	RoleHandler *roleHandler
-	OtpHandler  *otpHandler
-	UserHandler *userHandler
+	RoleHandler    *roleHandler
+	OtpHandler     *otpHandler
+	UserHandler    *userHandler
 	SysUserHandler *sysUserHandler
 }
 
 func NewRouter(r Router) http.Handler {
 	router := chi.NewRouter()
-	router.Use(middleware.Logger)
+	router.Use(chimiddleware.Logger)
+
+	protected := func(r chi.Router) {
+		r.Use(middleware.AuthMiddleware)
+	}
 
 	router.Route("/roles", func(ro chi.Router) {
+		protected(ro)
 		ro.Post("/create", r.RoleHandler.CreateRole)
 		ro.Get("/", r.RoleHandler.GetRoles)
 		ro.Patch("/{id}", r.RoleHandler.UpdateRole)
@@ -34,8 +40,9 @@ func NewRouter(r Router) http.Handler {
 	})
 
 	router.Route("/sysusers", func(ro chi.Router) {
+		protected(ro)
 		ro.Post("/create", r.SysUserHandler.CreateSysUser)
 	})
 
-return router
+	return router
 }
