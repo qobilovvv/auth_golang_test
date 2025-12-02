@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -29,7 +30,8 @@ func (h *otpHandler) SendOTP(w http.ResponseWriter, r *http.Request) {
 
 	otp, err := h.service.SendOTP(req.Email)
 	if err != nil {
-		helpers.RespondJSON(w, http.StatusInternalServerError, err.Error())
+		helpers.RespondJSON(w, http.StatusInternalServerError, "something went wrong")
+		log.Println("Error in handler:", err)
 		return
 	}
 
@@ -43,19 +45,21 @@ func (h *otpHandler) ConfirmOTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		helpers.ResponseError(w, http.StatusBadRequest, err.Error())
+		helpers.ResponseError(w, http.StatusBadRequest, "something went wrong")
+		log.Println("Error in handler:", err)
 		return
 	}
 
 	id, err := uuid.Parse(req.OtpId)
 	if err != nil {
-		http.Error(w, "invalid otp_id", http.StatusBadRequest)
+		helpers.ResponseError(w, http.StatusBadRequest, "invalid otp_id")
 		return
 	}
 
 	jwtToken, err := h.service.ConfirmOTP(id, req.Code)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		helpers.ResponseError(w, http.StatusInternalServerError, "something went wrong")
+		log.Println("Error in handler:", err)
 		return
 	}
 

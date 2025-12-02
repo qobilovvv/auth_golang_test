@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
-	"github.com/qobilovvv/test_tasks/auth/internal/config"
+	"github.com/qobilovvv/test_tasks/auth/internal/db"
 	"github.com/qobilovvv/test_tasks/auth/internal/handlers"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
@@ -22,7 +22,7 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("there is no .env file")
 	}
-	db := config.InitDB()
+	db := db.InitDB()
 
 	r := chi.NewRouter()
 

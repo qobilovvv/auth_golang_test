@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -29,7 +30,8 @@ func (h *roleHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := h.service.CreateRole(req.Name)
 	if err != nil {
-		helpers.RespondJSON(w, http.StatusInternalServerError, err.Error()) // 500
+		helpers.RespondJSON(w, http.StatusInternalServerError, "something went wrong") // 500
+		log.Println("Error in handler:", err)
 		return
 	}
 	helpers.RespondJSON(w, http.StatusOK, user)
@@ -38,7 +40,8 @@ func (h *roleHandler) CreateRole(w http.ResponseWriter, r *http.Request) {
 func (h *roleHandler) GetRoles(w http.ResponseWriter, r *http.Request) {
 	roles, err := h.service.GetAll()
 	if err != nil {
-		helpers.ResponseError(w, http.StatusInternalServerError, err.Error()) // status = 500
+		helpers.ResponseError(w, http.StatusInternalServerError, "something went wrong") // status = 500
+		log.Println("Error in handler:", err)
 		return
 	}
 
@@ -59,7 +62,7 @@ func (h *roleHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleIDStr := chi.URLParam(r, "id")
 	roleID, err := uuid.Parse(roleIDStr)
 	if err != nil {
-		http.Error(w, "Invalid role ID", http.StatusBadRequest)
+		helpers.ResponseError(w, http.StatusBadRequest, "Invalid role ID")
 		return
 	}
 
@@ -68,13 +71,14 @@ func (h *roleHandler) UpdateRole(w http.ResponseWriter, r *http.Request) {
 		Name string `json:"name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Name == "" {
-		http.Error(w, "Invalid or missing name", http.StatusBadRequest)
+		helpers.ResponseError(w, http.StatusBadRequest, "Invalid or missing name")
 		return
 	}
 
 	updatedRole, err := h.service.UpdateRole(roleID, req.Name)
 	if err != nil {
-		helpers.ResponseError(w, http.StatusInternalServerError, err.Error())
+		helpers.ResponseError(w, http.StatusInternalServerError, "something went wrong")
+		log.Println("Error in handler:", err)
 		return
 	}
 

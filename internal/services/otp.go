@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/qobilovvv/test_tasks/auth/internal/config"
 	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
+	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 	"gopkg.in/gomail.v2"
 )
 
@@ -82,7 +82,7 @@ func (s *otpService) ConfirmOTP(id uuid.UUID, code string) (string, error) {
 		return "", err
 	}
 
-	token, err := config.GenerateOtpToken(otp.Id.String(), 3*time.Minute)
+	token, err := helpers.GenerateJwtOtpToken(otp.Id.String(), 3*time.Minute)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate OTP token: %w", err)
 	}

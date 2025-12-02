@@ -2,14 +2,11 @@ package middleware
 
 import (
 	"net/http"
-	"os"
 	"strings"
 
-	"github.com/qobilovvv/test_tasks/auth/internal/config"
 	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 )
 
-var superUserID = os.Getenv("SUPER_USER_ID")
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +23,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		token := parts[1]
-		_, userType, err := config.DecodeAccessToken(token)
+		_, userType, err := helpers.DecodeAccessToken(token)
 		if err != nil {
 			helpers.ResponseError(w, http.StatusUnauthorized, err.Error())
 			return

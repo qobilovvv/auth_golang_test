@@ -1,4 +1,4 @@
-package config
+package helpers
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 var jwtSecret = []byte("secrett")
 
-func GenerateOtpToken(otpID string, duration time.Duration) (string, error) {
+func GenerateJwtOtpToken(otpID string, duration time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"id":  otpID,
 		"exp": time.Now().Add(duration).Unix(),
@@ -19,7 +19,7 @@ func GenerateOtpToken(otpID string, duration time.Duration) (string, error) {
 	return token.SignedString(jwtSecret)
 }
 
-func DecodeOtpToken(tokenString string) (string, time.Time, error) {
+func DecodeJwtOtpToken(tokenString string) (string, time.Time, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method")

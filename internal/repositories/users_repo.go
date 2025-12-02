@@ -33,3 +33,18 @@ func (r *userRepository) GetActiveUser(email string) (*models.Users, error) {
 	}
 	return &user, nil
 }
+
+func (r *userRepository) CreateSuperUser(name, email, password string) (*models.Users, error) {
+	user := models.Users{
+		Name:        name,
+		Email:       email,
+		Password:    password,
+		IsSuperUser: true,
+		Status:      "active",
+	}
+	err := r.db.Create(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

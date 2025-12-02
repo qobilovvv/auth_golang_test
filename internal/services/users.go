@@ -34,7 +34,7 @@ func NewUserService(
 }
 
 func (s *userService) SignUpUser(token, email, name, password string) (string, error) {
-	otpIDStr, exp, err := config.DecodeOtpToken(token)
+	otpIDStr, exp, err := config.DecodeJwtOtpToken(token)
 	if !strings.Contains(email, "@") {
 		return "", errors.ErrInvalidEmail
 	}
