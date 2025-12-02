@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/qobilovvv/test_tasks/auth/internal/config"
 	"github.com/qobilovvv/test_tasks/auth/internal/errors"
 	"github.com/qobilovvv/test_tasks/auth/internal/models"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
+	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 )
 
 type UserService interface {
@@ -34,7 +34,7 @@ func NewUserService(
 }
 
 func (s *userService) SignUpUser(token, email, name, password string) (string, error) {
-	otpIDStr, exp, err := config.DecodeJwtOtpToken(token)
+	otpIDStr, exp, err := helpers.DecodeJwtOtpToken(token)
 	if !strings.Contains(email, "@") {
 		return "", errors.ErrInvalidEmail
 	}
@@ -93,7 +93,7 @@ func (s *userService) Login(identifier, password, user_type string) (string, err
 			return "", errors.ErrInvalidCredentials
 		}
 
-		token, err := config.GenerateAccessToken(user.Id.String(), user_type, time.Minute*30)
+		token, err := helpers.GenerateAccessToken(user.Id.String(), user_type, time.Minute*30)
 		if err != nil {
 			return "", err
 		}
@@ -110,7 +110,7 @@ func (s *userService) Login(identifier, password, user_type string) (string, err
 		return "", errors.ErrInvalidCredentials
 	}
 
-	token, err := config.GenerateAccessToken(usr.Id.String(), user_type, time.Minute*30)
+	token, err := helpers.GenerateAccessToken(usr.Id.String(), user_type, time.Minute*30)
 	if err != nil {
 		return "", err
 	}
