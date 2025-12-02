@@ -21,10 +21,12 @@ func TestMain(m *testing.M) {
 	if err := testDB.AutoMigrate(
 		&models.Role{},
 		&models.Users{},
+		&models.SysUsers{},
+		&models.SysUserRoles{},
 	); err != nil {
 		panic(err)
 	}
-	
+
 	code := m.Run()
 	os.Exit(code)
 }
