@@ -12,6 +12,7 @@ import (
 	"github.com/qobilovvv/test_tasks/auth/internal/handlers"
 	"github.com/qobilovvv/test_tasks/auth/internal/repositories"
 	"github.com/qobilovvv/test_tasks/auth/internal/services"
+	"github.com/qobilovvv/test_tasks/auth/pkg/helpers"
 )
 
 const (
@@ -42,6 +43,9 @@ func main() {
 	otpHandler := handlers.NewOTPHandler(otpService)
 	userHandler := handlers.NewUserHandler(userService)
 	sysUserHandler := handlers.NewSysUserHandler(&sysUsersService)
+
+	// admin create
+	helpers.InitSuperAdmin(sysUsersRepo)
 
 	router := handlers.NewRouter(handlers.Router{
 		RoleHandler:    roleHandler,

@@ -14,6 +14,7 @@ type SysUserRepository interface {
 	CheckRoleExists(roleID uuid.UUID) (bool, error)
 	GetByPhone(phone string) (*models.SysUsers, error)
 	GetByEmail(email string) (*models.SysUsers, error)
+	Count() (int64, error)
 }
 
 type sysuserRepository struct {
@@ -72,4 +73,10 @@ func (r *sysuserRepository) CheckRoleExists(roleID uuid.UUID) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+func (r *sysuserRepository) Count() (int64, error) {
+	var count int64
+	err := r.db.Model(&models.SysUsers{}).Where("status = ?", "active").Count(&count).Error
+	return count, err
 }

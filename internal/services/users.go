@@ -100,7 +100,7 @@ func (s *userService) Login(identifier, password, user_type string) (string, err
 		return token, nil
 	}
 
-	// For normal users
+	// For just normal users
 	usr, err := s.userRepo.GetActiveUser(identifier)
 	if err != nil || usr == nil {
 		return "", errors.ErrInvalidCredentials

@@ -19,3 +19,7 @@
 1. /roles        -> returns list of roles +
 2. /roles/create -> creates role +
 3. /roles/{id}   -> update role +
+
+### How to run:
+1. make run
+2. go run main.go
